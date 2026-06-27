@@ -4,6 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+
+	"github.com/Hi-Im-Yuri/pokedex-cli/internal"
+	"github.com/Hi-Im-Yuri/pokedex-cli/internal/repl"
 )
 
 func main() {
@@ -16,7 +19,7 @@ func main() {
 		//get user input
 		if scanner.Scan() {
 			rawInput := scanner.Text()
-			userInputSlice := cleanInput(rawInput)
+			userInputSlice := repl.CleanInput(rawInput)
 			//guard against user returning nothing
 			if len(userInputSlice) == 0 {
 				continue
@@ -24,9 +27,9 @@ func main() {
 			userInput := userInputSlice[0]
 
 			//check user input against commandMap
-			command, ok := getCommands()[userInput]
+			command, ok := internal.GetCommands()[userInput]
 			if ok {
-				err := command.callback()
+				err := command.Callback()
 				if err != nil {
 					fmt.Printf("Error: %v\n", err)
 				}

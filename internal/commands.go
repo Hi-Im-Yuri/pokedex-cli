@@ -1,29 +1,29 @@
-package main
+package internal
 
 import (
 	"fmt"
 	"os"
 )
 
-type cliCommand struct {
+type CliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	Callback    func() error
 }
 
 // getCommands allows access to the commandMap map containing all commands
-func getCommands() map[string]cliCommand {
+func GetCommands() map[string]CliCommand {
 	//add any additional commands to the cli tool here. Define them below
-	var commandMap = map[string]cliCommand{
+	var commandMap = map[string]CliCommand{
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
-			callback:    commandExit,
+			Callback:    CommandExit,
 		},
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
-			callback:    commandHelp,
+			Callback:    CommandHelp,
 		},
 	}
 
@@ -31,17 +31,17 @@ func getCommands() map[string]cliCommand {
 }
 
 // exit the cli tool
-func commandExit() error {
+func CommandExit() error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
 // display a list of commands available to the user
-func commandHelp() error {
+func CommandHelp() error {
 	fmt.Println("Welcome to the Pokedex!")
 	fmt.Print("Usage:\n\n")
-	for _, cli := range getCommands() {
+	for _, cli := range GetCommands() {
 		fmt.Printf("%s: %s\n", cli.name, cli.description)
 	}
 	return nil
