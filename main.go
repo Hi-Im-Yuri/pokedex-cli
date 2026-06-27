@@ -6,11 +6,19 @@ import (
 	"os"
 
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal"
+	"github.com/Hi-Im-Yuri/pokedex-cli/internal/pokeapi"
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal/repl"
 )
 
+// base api url
+const pokeApi string = "https://pokeapi.co/api/v2/location-area/"
+
 func main() {
+	//initialize cli tool
 	scanner := bufio.NewScanner(os.Stdin)
+
+	//create struct to manage calls to different areas
+	var config pokeapi.Config
 
 	//cli tool entrypoint
 	for {
@@ -29,7 +37,7 @@ func main() {
 			//check user input against commandMap
 			command, ok := internal.GetCommands()[userInput]
 			if ok {
-				err := command.Callback()
+				err := command.Callback(&config)
 				if err != nil {
 					fmt.Printf("Error: %v\n", err)
 				}
