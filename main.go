@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal"
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal/pokeapi"
+	"github.com/Hi-Im-Yuri/pokedex-cli/internal/pokecache"
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal/repl"
 )
 
@@ -19,6 +21,7 @@ func main() {
 
 	//create struct to manage calls to different areas
 	var config pokeapi.Config
+	config.Cache = pokecache.NewCache(time.Second * 7)
 
 	//cli tool entrypoint
 	for {

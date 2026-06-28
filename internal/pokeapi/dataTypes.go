@@ -1,5 +1,9 @@
 package pokeapi
 
+import (
+	"github.com/Hi-Im-Yuri/pokedex-cli/internal/pokecache"
+)
+
 type PokeMap struct {
 	Count    int     `json:"count"`
 	Next     *string `json:"next"`
@@ -13,4 +17,5 @@ type PokeMap struct {
 type Config struct {
 	Next     *string
 	Previous *string
+	Cache    *pokecache.Cache
 }

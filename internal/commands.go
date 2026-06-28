@@ -70,14 +70,13 @@ func CommandMap(config *pokeapi.Config) error {
 	} else {
 		url = *config.Next
 	}
-	areas, err := pokeapi.GetArea(url)
+	areas, err := pokeapi.GetArea(url, config.Cache)
 	if err != nil {
 		return fmt.Errorf("Error: '%w' getting maps from api", err)
 	}
 
 	config.Next = areas.Next
 	config.Previous = areas.Previous
-
 	locationNames := []string{}
 
 	for _, area := range areas.Results {
@@ -97,13 +96,12 @@ func CommandMapB(config *pokeapi.Config) error {
 		fmt.Println("you're on the first page")
 		return nil
 	}
-	areas, err := pokeapi.GetArea(*url)
+	areas, err := pokeapi.GetArea(*url, config.Cache)
 	if err != nil {
 		return fmt.Errorf("Error: '%w' getting maps from api", err)
 	}
 	config.Next = areas.Next
 	config.Previous = areas.Previous
-
 	locationNames := []string{}
 
 	for _, area := range areas.Results {
