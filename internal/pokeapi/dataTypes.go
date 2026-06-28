@@ -40,7 +40,7 @@ type PokeData struct {
 	ID             int    `json:"id"`
 	Name           string `json:"name"`
 	Stats          []struct {
-		BaseStat int
+		BaseStat int `json:"base_stat"`
 		Effort   int
 		Stat     struct {
 			Name string
