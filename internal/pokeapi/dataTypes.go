@@ -19,3 +19,12 @@ type Config struct {
 	Previous *string
 	Cache    *pokecache.Cache
 }
+
+type PokeEncounters struct {
+	PokemonList []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
+}

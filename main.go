@@ -32,17 +32,23 @@ func main() {
 			rawInput := scanner.Text()
 			userInputSlice := repl.CleanInput(rawInput)
 			//guard against user returning nothing
+			var userFlag *string = nil
 			if len(userInputSlice) == 0 {
 				continue
+			} else if len(userInputSlice) > 2 {
+				fmt.Println("Too many arguments in user input")
+				continue
+			} else if len(userInputSlice) == 2 {
+				userFlag = &userInputSlice[1]
 			}
 			userInput := userInputSlice[0]
 
 			//check user input against commandMap
 			command, ok := internal.GetCommands()[userInput]
 			if ok {
-				err := command.Callback(&config)
+				err := command.Callback(&config, userFlag)
 				if err != nil {
-					fmt.Printf("Error: %v\n", err)
+					fmt.Printf("%v\n", err)
 				}
 			} else {
 				fmt.Println("Unknown command")
@@ -50,7 +56,7 @@ func main() {
 
 			//checks for any error with the scanner itself
 		} else if err := scanner.Err(); err != nil {
-			fmt.Printf("There was an error: %v with the scanner. Shutting down safely...", err)
+			fmt.Printf("There was an error: '%v' with the scanner. Shutting down safely...", err)
 			return
 		}
 	}

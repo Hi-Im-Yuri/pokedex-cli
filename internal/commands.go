@@ -10,7 +10,7 @@ import (
 type CliCommand struct {
 	name        string
 	description string
-	Callback    func(*pokeapi.Config) error
+	Callback    func(*pokeapi.Config, *string) error
 }
 
 // base api url
@@ -27,7 +27,7 @@ func GetCommands() map[string]CliCommand {
 		},
 		"help": {
 			name:        "help",
-			description: "Displays a help message",
+			description: "Displays a help message. Can be used with help <command> to display information about one command",
 			Callback:    CommandHelp,
 		},
 		"map": {
@@ -40,30 +40,44 @@ func GetCommands() map[string]CliCommand {
 			description: "cycles backwards to previous location",
 			Callback:    CommandMapB,
 		},
+		"explore": {
+			name:        "explore",
+			description: "explore an area using explore <location-name> from map",
+			Callback:    CommandExplore,
+		},
 	}
 
 	return commandMap
 }
 
 // exit the cli tool
-func CommandExit(config *pokeapi.Config) error {
+func CommandExit(config *pokeapi.Config, userFlag *string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
 // display a list of commands available to the user
-func CommandHelp(config *pokeapi.Config) error {
+func CommandHelp(config *pokeapi.Config, userFlag *string) error {
 	fmt.Println("Welcome to the Pokedex!")
-	fmt.Print("Usage:\n\n")
-	for _, cli := range GetCommands() {
-		fmt.Printf("%s: %s\n", cli.name, cli.description)
+	fmt.Print("Usage:\n")
+	if userFlag != nil {
+		command, exists := GetCommands()[*userFlag]
+		if exists {
+			fmt.Printf("%s: %s\n", command.name, command.description)
+		} else {
+			fmt.Printf("no command found for: %s", *userFlag)
+		}
+		return nil
+	}
+	for _, command := range GetCommands() {
+		fmt.Printf("%s: %s\n", command.name, command.description)
 	}
 	return nil
 }
 
 // displays the next possible pokemap
-func CommandMap(config *pokeapi.Config) error {
+func CommandMap(config *pokeapi.Config, userFlag *string) error {
 	var url string
 	if config.Next == nil {
 		url = pokeApi
@@ -90,7 +104,7 @@ func CommandMap(config *pokeapi.Config) error {
 
 }
 
-func CommandMapB(config *pokeapi.Config) error {
+func CommandMapB(config *pokeapi.Config, userFlag *string) error {
 	url := config.Previous
 	if url == nil {
 		fmt.Println("you're on the first page")
@@ -113,4 +127,20 @@ func CommandMapB(config *pokeapi.Config) error {
 	}
 	return nil
 
+}
+
+func CommandExplore(config *pokeapi.Config, userFlag *string) error {
+	if userFlag == nil {
+		fmt.Printf("please input explore <location-name>")
+		return nil
+	}
+	encounters, err := pokeapi.GetExplore(*userFlag, config.Cache)
+	if err != nil {
+		return fmt.Errorf("Error: '%w' getting exploration data from api", err)
+	}
+
+	for _, encounter := range encounters.PokemonList {
+		fmt.Println(encounter.Pokemon.Name)
+	}
+	return nil
 }

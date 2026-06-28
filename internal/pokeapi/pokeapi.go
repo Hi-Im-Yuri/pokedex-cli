@@ -4,16 +4,12 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal/pokecache"
 )
 
 // entry point url for pokeapi areas
 const pokeApi string = "https://pokeapi.co/api/v2/location-area/"
-
-// cache update interval
-const interval time.Duration = 7 * time.Second
 
 // gets the json data of a location-area from the pokeApi
 func GetArea(url string, cache *pokecache.Cache) (PokeMap, error) {
@@ -44,4 +40,35 @@ func GetArea(url string, cache *pokecache.Cache) (PokeMap, error) {
 
 	return pokeLocations, nil
 
+}
+
+// allows user to explore an area shown in map taking the userInput string and returning a struct
+// containing a list of available pokemon
+func GetExplore(userInput string, cache *pokecache.Cache) (PokeEncounters, error) {
+	explorationUrl := pokeApi + userInput
+	var encounters PokeEncounters
+	data, cached := cache.Get(explorationUrl)
+	if cached {
+		err := json.Unmarshal(data, &encounters)
+		if err != nil {
+			return PokeEncounters{}, err
+		}
+		return encounters, nil
+	}
+	res, err := http.Get(explorationUrl)
+	if err != nil {
+		return PokeEncounters{}, err
+	}
+	defer res.Body.Close()
+
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return PokeEncounters{}, err
+	}
+	cache.Add(explorationUrl, resBody)
+	err = json.Unmarshal(resBody, &encounters)
+	if err != nil {
+		return PokeEncounters{}, err
+	}
+	return encounters, nil
 }

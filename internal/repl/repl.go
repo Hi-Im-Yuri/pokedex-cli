@@ -9,7 +9,7 @@ func CleanInput(text string) []string {
 	if text == "" {
 		return nil
 	}
-	/*  removed for now
+	/*  removed for now,
 	workingString := strings.ToLower(text)
 	//adaptable special character check that can be updated if anomalies are encountered
 	specialCharacters := []string{
