@@ -11,6 +11,9 @@ import (
 // entry point url for pokeapi areas
 const pokeApi string = "https://pokeapi.co/api/v2/location-area/"
 
+// entry point url for pokeapi pokemon
+const pokemonURL string = "https://pokeapi.co/api/v2/pokemon/"
+
 // gets the json data of a location-area from the pokeApi
 func GetArea(url string, cache *pokecache.Cache) (PokeMap, error) {
 	var pokeLocations PokeMap
@@ -71,4 +74,33 @@ func GetExplore(userInput string, cache *pokecache.Cache) (PokeEncounters, error
 		return PokeEncounters{}, err
 	}
 	return encounters, nil
+}
+
+func GetPokemon(userInput string, cache *pokecache.Cache) (PokeData, error) {
+	url := pokemonURL + userInput
+	var pokemon PokeData
+	data, cached := cache.Get(url)
+	if cached {
+		err := json.Unmarshal(data, &pokemon)
+		if err != nil {
+			return PokeData{}, err
+		}
+		return pokemon, nil
+	}
+	res, err := http.Get(url)
+	if err != nil {
+		return PokeData{}, err
+	}
+	defer res.Body.Close()
+
+	resBody, err := io.ReadAll(res.Body)
+	if err != nil {
+		return PokeData{}, err
+	}
+	cache.Add(url, resBody)
+	err = json.Unmarshal(resBody, &pokemon)
+	if err != nil {
+		return PokeData{}, err
+	}
+	return pokemon, nil
 }

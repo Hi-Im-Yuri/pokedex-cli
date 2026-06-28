@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 
 	"github.com/Hi-Im-Yuri/pokedex-cli/internal/pokeapi"
@@ -13,8 +14,11 @@ type CliCommand struct {
 	Callback    func(*pokeapi.Config, *string) error
 }
 
-// base api url
+// base api url for locations
 const pokeApi string = "https://pokeapi.co/api/v2/location-area/"
+
+// base api url for pokemon
+const pokemonURL string = "https://pokeapi.co/api/v2/pokemon/"
 
 // getCommands allows access to the commandMap map containing all commands
 func GetCommands() map[string]CliCommand {
@@ -44,6 +48,11 @@ func GetCommands() map[string]CliCommand {
 			name:        "explore",
 			description: "explore an area using explore <location-name> from map",
 			Callback:    CommandExplore,
+		},
+		"catch": {
+			name:        "catch",
+			description: "attempt to catch a pokemon using catch <pokemon-name>",
+			Callback:    CommandCatch,
 		},
 	}
 
@@ -142,5 +151,28 @@ func CommandExplore(config *pokeapi.Config, userFlag *string) error {
 	for _, encounter := range encounters.PokemonList {
 		fmt.Println(encounter.Pokemon.Name)
 	}
+	return nil
+}
+
+func CommandCatch(config *pokeapi.Config, userFlag *string) error {
+	if userFlag == nil {
+		fmt.Printf("please input catch <pokemon-name>\n")
+		return nil
+	} else if pm, caught := config.Caught[*userFlag]; caught {
+		fmt.Printf("You have already caught %s\n", pm.Name)
+		return nil
+	}
+	pokemon, err := pokeapi.GetPokemon(*userFlag, config.Cache)
+	if err != nil {
+		return fmt.Errorf("Error: '%w' getting pokemon data from api", err)
+	}
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
+	if rand.Int31n(350) >= int32(pokemon.BaseExperience) {
+		config.Caught[pokemon.Name] = pokemon
+		fmt.Printf("%s was caught!\n", pokemon.Name)
+	} else {
+		fmt.Printf("%s escaped!\n", pokemon.Name)
+	}
+
 	return nil
 }

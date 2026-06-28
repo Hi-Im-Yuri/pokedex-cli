@@ -22,6 +22,7 @@ func main() {
 	//create struct to manage calls to different areas
 	var config pokeapi.Config
 	config.Cache = pokecache.NewCache(time.Second * 7)
+	config.Caught = map[string]pokeapi.PokeData{}
 
 	//cli tool entrypoint
 	for {
